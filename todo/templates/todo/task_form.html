@@ -1,0 +1,29 @@
+{% extends "todo/base.html" %} {% block body%}
+<h1>Formulaire d'enregistrement des Taches</h1>
+<form action="" method="post">
+  {% csrf_token %}
+  <label for="title">Titre :</label><br />
+  <input type="text" name="title" id="title" class="form-control" /><br />
+  <label for="description">Description :</label><br />
+  <input
+    type="text"
+    name="description"
+    id="description"
+    class="form-control"
+  /><br />
+  <label for="due_date">Date de Delais :</label><br />
+  <input type="date" name="due_date" id="due_date" class="form-control" /><br />
+  <label for="priority">Priorité :</label><br />
+  <select name="priority" id="priority" class="form-control">
+    <option value="Faible">Faible</option>
+    <option value="Moyen">Moyen</option>
+    <option value="Elevé">Elevé</option>
+  </select>
+  <label for="completed">Completé :</label><br />
+  <input type="checkbox" name="completed" id="completed" />
+  <label for="category">Category :</label><br />
+  <input type="text" name="category" id="category" class="form-control" /><br />
+  <input type="submit" value="Enregistrer" class="btn btn-primary" />
+  <input type="reset" value="Annuler" class="btn btn-danger" />
+</form>
+{% endblock %}
