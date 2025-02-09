@@ -15,21 +15,26 @@ class TaskListView(LoginRequiredMixin,ListView):
 class TaskCreateView(LoginRequiredMixin,CreateView):
     model = Task
     form_class = TaskForm
-    template_name = 'todo/task_form.html'
+    template_name = 'todo/task_list.html'
     success_url = reverse_lazy('task_list')
 
 class TaskUpdateView(LoginRequiredMixin,UpdateView):
     model = Task
     form_class = TaskForm
-    template_name = 'todo/task_form.html'
+    template_name = 'todo/task_list.html'
     success_url = reverse_lazy('task_list')
 
 class TaskDeleteView(LoginRequiredMixin,DeleteView):
     model = Task
-    template_name = 'todo/task_delete.html'
+    template_name = 'todo/task_list.html'
     success_url = reverse_lazy('task_list')
     
 class TaskDetailView(LoginRequiredMixin,DetailView):
     model = Task
     form_class = TaskForm
     template_name = 'todo/task_detail.html'
+
+def task_search(request):
+    query = request.GET.get('query', '')
+    tasks = Task.objects.filter(title__icontains=query, user=request.user)
+    return render(request, 'todo/task_list.html', {'tasks': tasks, 'search_query': query})

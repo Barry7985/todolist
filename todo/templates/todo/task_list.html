@@ -5,13 +5,12 @@
       <h1>Liste des tâches à faire</h1>
     </div>
     <div class="col-md-3">
-      <a href="{% url 'task_create' %}" class="btn btn-primary">
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTaskModal">
         Ajouter une nouvelle tâche
-      </a>
+      </button>
     </div>
   </div>
 
-  <!-- Responsive table wrapper -->
   <div class="table-responsive">
     <table class="table table-striped">
       <thead>
@@ -27,43 +26,207 @@
         </tr>
       </thead>
       <tbody>
-        {% for task in tasks %} {% if user.is_authenticated and user ==
-        task.user %}
-        <tr>
-          <td>{{ task.id }}</td>
-          <td>{{ task.title }}</td>
-          <td>{{ task.description }}</td>
-          <td>{{ task.due_date }}</td>
-          <td>{{ task.priority }}</td>
-          <td>
-            <span
-              class="badge rounded-pill {% if task.completed == 1 %}text-bg-success{% else %}text-bg-danger{% endif %}"
-            >
-              {% if task.completed == 1 %} Completed {% else %} Incomplete {%
-              endif %}
-            </span>
-          </td>
-          <td>{{ task.category }}</td>
-          <td>
-            <a href="{% url 'task_edit' task.id %}" class="btn btn-primary"
-              >Edit</a
-            >
-            <a href="{% url 'task_delete' task.id %}" class="btn btn-danger"
-              >Delete</a
-            >
-          </td>
-        </tr>
-        {% endif %} {% empty %}
-        <tr>
-          <td colspan="8">
-            <div class="alert alert-info" role="alert">
-              Aucune Tache n'est disponible pour le moment.
-            </div>
-          </td>
-        </tr>
+        {% for task in tasks %}
+          <tr>
+            <td>{{ task.id }}</td>
+            <td>{{ task.title }}</td>
+            <td>{{ task.description }}</td>
+            <td>{{ task.due_date }}</td>
+            <td>{{ task.priority }}</td>
+            <td>
+              <span class="badge rounded-pill {% if task.completed == 1 %}text-bg-success{% else %}text-bg-danger{% endif %}">
+                {% if task.completed == 1 %} Completed {% else %} Incomplete {% endif %}
+              </span>
+            </td>
+            <td>{{ task.category }}</td>
+            <td>
+              <button
+                type="button"
+                class="btn btn-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#editTaskModal"
+                data-task-id="{{ task.id }}"
+                data-task-title="{{ task.title }}"
+                data-task-description="{{ task.description }}"
+                data-task-due-date="{{ task.due_date|date:'Y-m-d' }}"
+                data-task-priority="{{ task.priority }}"
+                data-task-completed="{{ task.completed }}"
+                data-task-category="{{ task.category }}"
+              >
+                Modifier
+              </button>
+              <button
+                type="button"
+                class="btn btn-danger"
+                data-bs-toggle="modal"
+                data-bs-target="#deleteTaskModal"
+                data-task-id="{{ task.id }}"
+                data-task-title="{{ task.title }}"
+              >
+                Supprimer
+              </button>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="8">
+              <div class="alert alert-info" role="alert">
+                Aucune Tâche n'est disponible pour le moment.
+              </div>
+            </td>
+          </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
+
+
+<!-- Modal de création -->
+<div class="modal fade" id="createTaskModal" tabindex="-1" aria-labelledby="createTaskModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createTaskModalLabel">Ajouter une nouvelle tâche</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{% url 'task_create' %}" method="post" id="createTaskForm">
+        {% csrf_token %}
+        <div class="modal-body">
+          <label for="title">Titre :</label><br />
+          <input type="text" name="title" id="title" class="form-control" /><br />
+
+          <label for="description">Description :</label><br />
+          <input type="text" name="description" id="description" class="form-control" /><br />
+
+          <label for="due_date">Date de Delais :</label><br />
+          <input type="date" name="due_date" id="due_date" class="form-control" /><br />
+
+          <label for="priority">Priorité :</label><br />
+          <select name="priority" id="priority" class="form-control">
+            <option value="Faible">Faible</option>
+            <option value="Moyen">Moyen</option>
+            <option value="Elevé">Elevé</option>
+          </select><br />
+
+          <label for="completed">Completé :</label><br />
+          <input type="checkbox" name="completed" id="completed" /><br />
+
+          <label for="category">Catégorie :</label><br />
+          <input type="text" name="category" id="category" class="form-control" /><br />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="submit" class="btn btn-primary">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
+
+<!-- Modal de modification -->
+<div class="modal fade" id="editTaskModal" tabindex="-1" aria-labelledby="editTaskModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editTaskModalLabel">Modifier la tâche</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{% url 'task_edit' 0 %}" method="post" id="editTaskForm">
+        {% csrf_token %}
+        <input type="hidden" name="task_id" id="task_id" />
+        <div class="modal-body">
+          <label for="edit_title">Titre :</label><br />
+          <input type="text" name="title" id="edit_title" class="form-control" /><br />
+
+          <label for="edit_description">Description :</label><br />
+          <input type="text" name="description" id="edit_description" class="form-control" /><br />
+
+          <label for="edit_due_date">Date de Delais :</label><br />
+          <input type="date" name="due_date" id="edit_due_date" class="form-control" /><br />
+
+          <label for="edit_priority">Priorité :</label><br />
+          <select name="priority" id="edit_priority" class="form-control">
+            <option value="Faible">Faible</option>
+            <option value="Moyen">Moyen</option>
+            <option value="Elevé">Elevé</option>
+          </select><br />
+
+          <label for="edit_completed">Completé :</label><br />
+          <input type="checkbox" name="completed" id="edit_completed" /><br />
+
+          <label for="edit_category">Catégorie :</label><br />
+          <input type="text" name="category" id="edit_category" class="form-control" /><br />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="submit" class="btn btn-primary">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de suppression -->
+<div class="modal fade" id="deleteTaskModal" tabindex="-1" aria-labelledby="deleteTaskModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteTaskModalLabel">Supprimer la tâche</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{% url 'task_delete' 0 %}" method="post" id="deleteTaskForm">
+        {% csrf_token %}
+        <input type="hidden" name="task_id" id="delete_task_id" />
+        <div class="modal-body">
+          <p>Voulez-vous vraiment supprimer la tâche "<span id="delete_task_title"></span>" ?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Non</button>
+          <button type="submit" class="btn btn-danger">Oui</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Pré-remplir le modal de modification avec les données de la tâche
+  const editModal = document.getElementById('editTaskModal');
+  editModal.addEventListener('show.bs.modal', event => {
+    const button = event.relatedTarget;
+    const taskId = button.getAttribute('data-task-id');
+    const title = button.getAttribute('data-task-title');
+    const description = button.getAttribute('data-task-description');
+    const dueDate = button.getAttribute('data-task-due-date');
+    const priority = button.getAttribute('data-task-priority');
+    const completed = button.getAttribute('data-task-completed') === 'True';
+    const category = button.getAttribute('data-task-category');
+
+    const form = editModal.querySelector('#editTaskForm');
+    form.action = `{% url 'task_edit' 0 %}`.replace('0', taskId);
+
+    form.querySelector('#task_id').value = taskId;
+    form.querySelector('#edit_title').value = title;
+    form.querySelector('#edit_description').value = description;
+    form.querySelector('#edit_due_date').value = dueDate;
+    form.querySelector('#edit_priority').value = priority;
+    form.querySelector('#edit_completed').checked = completed;
+    form.querySelector('#edit_category').value = category;
+  });
+
+  // Pré-remplir le modal de suppression avec le nom de la tâche
+  const deleteModal = document.getElementById('deleteTaskModal');
+  deleteModal.addEventListener('show.bs.modal', event => {
+    const button = event.relatedTarget;
+    const taskId = button.getAttribute('data-task-id');
+    const title = button.getAttribute('data-task-title');
+
+    const form = deleteModal.querySelector('#deleteTaskForm');
+    form.action = `{% url 'task_delete' 0 %}`.replace('0', taskId);
+
+    form.querySelector('#delete_task_id').value = taskId;
+    deleteModal.querySelector('#delete_task_title').textContent = title;
+  });
+</script>
+
 {% endblock %}
