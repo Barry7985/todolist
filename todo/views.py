@@ -29,11 +29,6 @@ class TaskDeleteView(LoginRequiredMixin,DeleteView):
     model = Task
     template_name = 'todo/task_list.html'
     success_url = reverse_lazy('task_list')
-    
-class TaskDetailView(LoginRequiredMixin,DetailView):
-    model = Task
-    form_class = TaskForm
-    template_name = 'todo/task_detail.html'
 
 def task_search(request):
     query = request.GET.get('query', '')
