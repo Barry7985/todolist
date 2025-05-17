@@ -53,6 +53,7 @@
     </style>
   </head>
   <body>
+    {% if user.is_authenticated %}
     <section style="margin-bottom: 30px">
       <nav class="navbar navbar-expand-lg bg-light shadow-sm">
         <div class="container-fluid">
@@ -164,15 +165,6 @@
 
             <!-- Authentification -->
             <ul class="navbar-nav ms-auto">
-              {% if not user.is_authenticated %}
-              <li class="nav-item">
-                <a
-                  class="btn btn-outline-primary"
-                  href="{% url 'accounts:login' %}"
-                  ><i class="fa-solid fa-right-to-bracket"></i> Connexion</a
-                >
-              </li>
-              {% else %}
               <li class="nav-item dropdown">
                 <a
                   class="nav-link dropdown-toggle"
@@ -197,12 +189,12 @@
                   </li>
                 </ul>
               </li>
-              {% endif %}
             </ul>
           </div>
         </div>
       </nav>
     </section>
+    {% endif %}
     {% block body %}{% endblock %}
     <!-- Bootstrap JS -->
     <script
